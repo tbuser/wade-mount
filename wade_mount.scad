@@ -1,6 +1,6 @@
 /*
 
-RepRap Wade Extruder Mount #1
+RepRap Wade Extruder Mount #2
 
 Tony Buser <tbuser@gmail.com>
 http://tonybuser.com
@@ -14,27 +14,42 @@ Improvements:
 	* hot end now centered in carriage
 	* can now be removed from carriage without having to dissasemble first
 	* lifts makerbot sized hot end to increase max Z by 5mm
-
+	* also supports grooved insulators
 */
 
+// type of insulator barrel
+insulator_type = "groove"; // standard, groove
+
 mount_height = 5;
+
+// standard is 16, make it larger for inaccurate printers
 insulator_diameter = 17.2;
+
+// standard is 4, make it larger for inaccurate printers
 bolt_diameter = 4.7;
+
+// standard is 12, make it larger for inaccurate printers
+groove_diameter = 13.2;
 
 module wade_mount_base() {
 	translate([0, 0, 0]) {
 		union() {
-			translate([5, 0, 0]) {
-				cube([70, 20, mount_height], center=true);
+			translate([7, 0, 0]) {
+				cube([74, 20, mount_height], center=true);
 			}
 
 			translate([0, 8, 0]) {
 				cube([20, 60, mount_height], center=true);
 			}
 
-			// insulator
+			// insulator curve
 			translate([0, 8, 0]) {
-				cylinder(mount_height, insulator_diameter/2+4, insulator_diameter/2+4, center=true);
+				cylinder(mount_height, insulator_diameter/2+6, insulator_diameter/2+6, center=true);
+			}
+
+			// front tab curve
+			translate([0, -8, 0]) {
+				cylinder(mount_height, insulator_diameter/2+6, insulator_diameter/2+6, center=true);
 			}
 
 			// left wade mounting hole
@@ -57,8 +72,25 @@ module wade_mount() {
 		wade_mount_base();
 
 		// insulator
-		translate([0, 8, 0]) {
-			cylinder(mount_height+2, insulator_diameter/2, insulator_diameter/2, center=true);
+		if (insulator_type == "groove") {
+			// sloped hole
+			translate([0, 8, -2]) {
+				cylinder(mount_height+1, insulator_diameter/2+1, groove_diameter/2, center=true);
+			}
+
+			// to create lip
+			translate([0, 8, 0]) {
+				cylinder(mount_height+2, groove_diameter/2, groove_diameter/2, center=true);
+			}
+
+			// cutout so it can flex and pop in
+			translate([-1, 8, -mount_height/2-1]) {
+				rotate([0, 0, -45]) cube([groove_diameter, insulator_diameter, mount_height+2], center=false);
+			}
+		} else {
+			translate([0, 8, 0]) {
+				cylinder(mount_height+2, insulator_diameter/2, insulator_diameter/2, center=true);
+			}
 		}
 
 		// back mounting hole
