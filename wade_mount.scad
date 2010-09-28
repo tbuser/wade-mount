@@ -1,20 +1,34 @@
 /*
-
 RepRap Wade Extruder Mount #2
 
-Tony Buser <tbuser@gmail.com>
+by Tony Buser <tbuser@gmail.com>
 http://tonybuser.com
 http://replimat.com
 
-Improvements:
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-	* mounted horizontally to improve clearance
-	* prevents motor collision on left side at 0mm X above ~50mm Z
-	* now only collides frame on right if you go past 160mm X and above 90mm Z
-	* hot end now centered in carriage
-	* can now be removed from carriage without having to dissasemble first
-	* lifts makerbot sized hot end to increase max Z by 5mm
-	* also supports grooved insulators
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+/*
+Improvements:
+* mounted horizontally to improve clearance
+* prevents motor collision on left side at 0mm X above ~50mm Z
+* now only collides frame on right if you go past 160mm X and above 90mm Z
+* hot end now centered in carriage
+* can now be removed from carriage without having to dissasemble first
+* lifts makerbot sized hot end to increase max Z by 5mm
+* also supports grooved insulators
 */
 
 // type of insulator barrel
@@ -29,17 +43,27 @@ insulator_diameter = 17.2;
 bolt_diameter = 4.7;
 
 // standard is 12, make it larger for inaccurate printers
-groove_diameter = 13.2;
+groove_diameter = 13.1;
 
 module wade_mount_base() {
 	translate([0, 0, 0]) {
 		union() {
-			translate([7, 0, 0]) {
-				cube([74, 20, mount_height], center=true);
-			}
-
+			// horizontal base
 			translate([0, 8, 0]) {
 				cube([20, 60, mount_height], center=true);
+			}
+
+			// vertical base
+			translate([8, 0, 0]) {
+				cube([75, 20, mount_height], center=true);
+			}
+
+			// right side wrap around
+			translate([27.5, 24, 0]) {
+				cube([36, 10, mount_height], center=true);
+			}
+			translate([40.5, 15, 0]) {
+				cube([10, 10, mount_height], center=true);
 			}
 
 			// insulator curve
@@ -76,6 +100,12 @@ module wade_mount() {
 			// sloped hole
 			translate([0, 8, -2]) {
 				cylinder(mount_height+1, insulator_diameter/2+1, groove_diameter/2, center=true);
+
+				//translate([groove_diameter/2, 0, 0]) cylinder(mount_height+1, insulator_diameter/2+1, groove_diameter/2, center=true);
+
+				//translate([groove_diameter/2/2, 0, 0]) cylinder(mount_height+1, insulator_diameter/2+1, groove_diameter/2, center=true);
+
+				//translate([groove_diameter/2, 0, 0]) cube([groove_diameter, groove_diameter, mount_height+5], center=true);
 			}
 
 			// to create lip
@@ -83,10 +113,15 @@ module wade_mount() {
 				cylinder(mount_height+2, groove_diameter/2, groove_diameter/2, center=true);
 			}
 
-			// cutout so it can flex and pop in
-			translate([-1, 8, -mount_height/2-1]) {
-				rotate([0, 0, -45]) cube([groove_diameter, insulator_diameter, mount_height+2], center=false);
+			// cutout to slide into groove and give space for wiring
+			translate([groove_diameter-groove_diameter/4, 8, 0]) {
+				cylinder(mount_height+2, insulator_diameter/2+1, insulator_diameter/2, center=true);
+
+				//translate([0, insulator_diameter/5, 0]) cylinder(mount_height+2, insulator_diameter/2, insulator_diameter/2, center=true);
+
+				//translate([0, insulator_diameter/4, 0]) cube([insulator_diameter, insulator_diameter/2+5, mount_height+2], center=true);
 			}
+
 		} else {
 			translate([0, 8, 0]) {
 				cylinder(mount_height+2, insulator_diameter/2, insulator_diameter/2, center=true);
@@ -121,4 +156,4 @@ module wade_mount() {
 	}
 }
 
-translate([0, 0, mount_height/2]) wade_mount();
+translate([-8, -8, mount_height/2]) wade_mount();
